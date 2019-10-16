@@ -15,6 +15,7 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "quotemark": [true, "single", "avoid-escape"],
-    "variable-name": [true, "ban-keywords", "check-format", "allow-trailing-underscore"]
+    "variable-name": [true, "ban-keywords", "check-format", "allow-trailing-underscore"],
+    "no-console": false
   }
 }

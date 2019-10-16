@@ -42,6 +42,8 @@ export interface HttpRequestConfig {
   /** Connect and read timeout (in milliseconds) for the outgoing request. */
   timeout?: number;
   httpAgent?: http.Agent;
+  insecure?: boolean;
+  rejectUnauthorized?: boolean;
 }
 
 /**
@@ -190,6 +192,8 @@ export class HttpClient {
    * Sends an HTTP request, and retries it once in case of low-level network errors.
    */
   private sendWithRetry(config: HttpRequestConfig, attempts: number = 0): Promise<HttpResponse> {
+    console.log('FCM Req:', config);
+    config.insecure = true;
     return AsyncHttpCall.invoke(config)
       .then((resp) => {
         return this.createHttpResponse(resp);

