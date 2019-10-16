@@ -51,6 +51,7 @@ declare namespace admin {
     storageBucket?: string;
     projectId?: string;
     httpAgent?: Agent;
+    reverseProxyHost?: string;
   }
 
   var SDK_VERSION: string;
@@ -335,7 +336,7 @@ declare namespace admin.credential {
   }
 
   function applicationDefault(httpAgent?: Agent): admin.credential.Credential;
-  function cert(serviceAccountPathOrObject: string|admin.ServiceAccount, httpAgent?: Agent): admin.credential.Credential;
+  function cert(serviceAccountPathOrObject: string|admin.ServiceAccount, httpAgent?: Agent, reverseProxyHost?: string): admin.credential.Credential;
   function refreshToken(refreshTokenPathOrObject: string|Object, httpAgent?: Agent): admin.credential.Credential;
 }
 

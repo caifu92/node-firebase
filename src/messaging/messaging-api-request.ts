@@ -63,7 +63,7 @@ export class FirebaseMessagingRequestHandler {
   public invokeRequestHandler(host: string, path: string, requestData: object): Promise<object> {
     const request: HttpRequestConfig = {
       method: FIREBASE_MESSAGING_HTTP_METHOD,
-      url: `https://${host}${path}`,
+      url: `${host}${path}`,
       data: requestData,
       headers: LEGACY_FIREBASE_MESSAGING_HEADERS,
       timeout: FIREBASE_MESSAGING_TIMEOUT,

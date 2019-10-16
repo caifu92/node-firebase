@@ -33,9 +33,9 @@ import * as utils from '../utils';
 import * as validator from '../utils/validator';
 
 // FCM endpoints
-const FCM_SEND_HOST = '34.65.167.94';
+const FCM_SEND_HOST = 'fcm.googleapis.com';
 const FCM_SEND_PATH = '/fcm/send';
-const FCM_TOPIC_MANAGEMENT_HOST = '34.65.167.94';
+const FCM_TOPIC_MANAGEMENT_HOST = 'iid.googleapis.com';
 const FCM_TOPIC_MANAGEMENT_ADD_PATH = '/iid/v1:batchAdd';
 const FCM_TOPIC_MANAGEMENT_REMOVE_PATH = '/iid/v1:batchRemove';
 
@@ -206,6 +206,8 @@ export class Messaging implements FirebaseServiceInterface {
 
   public INTERNAL: MessagingInternals = new MessagingInternals();
 
+  private sendHost: string;
+  private manageTopicHost: string;
   private urlPath: string;
   private appInternal: FirebaseApp;
   private messagingRequestHandler: FirebaseMessagingRequestHandler;
@@ -233,6 +235,8 @@ export class Messaging implements FirebaseServiceInterface {
       );
     }
 
+    this.sendHost = app.options.reverseProxyHost || 'https://' + FCM_SEND_HOST;
+    this.manageTopicHost = app.options.reverseProxyHost || FCM_TOPIC_MANAGEMENT_HOST;
     this.urlPath = `/v1/projects/${projectId}/messages:send`;
     this.appInternal = app;
     this.messagingRequestHandler = new FirebaseMessagingRequestHandler(app);
@@ -268,7 +272,7 @@ export class Messaging implements FirebaseServiceInterface {
         if (dryRun) {
           request.validate_only = true;
         }
-        return this.messagingRequestHandler.invokeRequestHandler(FCM_SEND_HOST, this.urlPath, request);
+        return this.messagingRequestHandler.invokeRequestHandler(this.sendHost, this.urlPath, request);
       })
       .then((response) => {
         return (response as any).name;
@@ -313,7 +317,7 @@ export class Messaging implements FirebaseServiceInterface {
         request.validate_only = true;
       }
       return {
-        url: `https://${FCM_SEND_HOST}${this.urlPath}`,
+        url: `https://${this.sendHost}${this.urlPath}`,
         body: request,
       };
     });
@@ -406,7 +410,7 @@ export class Messaging implements FirebaseServiceInterface {
           request.registration_ids = registrationTokenOrTokens;
         }
 
-        return this.messagingRequestHandler.invokeRequestHandler(FCM_SEND_HOST, FCM_SEND_PATH, request);
+        return this.messagingRequestHandler.invokeRequestHandler(this.sendHost, FCM_SEND_PATH, request);
       })
       .then((response) => {
         // The sendToDevice() and sendToDeviceGroup() methods both set the `to` query parameter in
@@ -471,7 +475,7 @@ export class Messaging implements FirebaseServiceInterface {
         deepExtend(request, optionsCopy);
         request.to = notificationKey;
 
-        return this.messagingRequestHandler.invokeRequestHandler(FCM_SEND_HOST, FCM_SEND_PATH, request);
+        return this.messagingRequestHandler.invokeRequestHandler(this.sendHost, FCM_SEND_PATH, request);
       })
       .then((response) => {
         // The sendToDevice() and sendToDeviceGroup() methods both set the `to` query parameter in
@@ -532,7 +536,7 @@ export class Messaging implements FirebaseServiceInterface {
         deepExtend(request, optionsCopy);
         request.to = topic;
 
-        return this.messagingRequestHandler.invokeRequestHandler(FCM_SEND_HOST, FCM_SEND_PATH, request);
+        return this.messagingRequestHandler.invokeRequestHandler(this.sendHost, FCM_SEND_PATH, request);
       })
       .then((response) => {
         // Rename properties on the server response
@@ -584,7 +588,7 @@ export class Messaging implements FirebaseServiceInterface {
         deepExtend(request, optionsCopy);
         request.condition = condition;
 
-        return this.messagingRequestHandler.invokeRequestHandler(FCM_SEND_HOST, FCM_SEND_PATH, request);
+        return this.messagingRequestHandler.invokeRequestHandler(this.sendHost, FCM_SEND_PATH, request);
       })
       .then((response) => {
         // Rename properties on the server response
@@ -681,7 +685,7 @@ export class Messaging implements FirebaseServiceInterface {
         };
 
         return this.messagingRequestHandler.invokeRequestHandler(
-          FCM_TOPIC_MANAGEMENT_HOST, path, request,
+            this.manageTopicHost, path, request,
         );
       })
       .then((response) => {

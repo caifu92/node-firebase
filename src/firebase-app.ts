@@ -49,6 +49,7 @@ export interface FirebaseAppOptions {
   storageBucket?: string;
   projectId?: string;
   httpAgent?: Agent;
+  reverseProxyHost?: string;
 }
 
 /**
@@ -263,7 +264,7 @@ export class FirebaseApp {
 
     const hasCredential = ('credential' in this.options_);
     if (!hasCredential) {
-      this.options_.credential = new ApplicationDefaultCredential();
+      this.options_.credential = new ApplicationDefaultCredential(undefined, options.reverseProxyHost);
     }
 
     const credential = this.options_.credential;

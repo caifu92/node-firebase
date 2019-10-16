@@ -24,7 +24,7 @@ import {HttpClient, HttpRequestConfig, HttpError, HttpResponse} from '../utils/a
 import {Agent} from 'http';
 
 const GOOGLE_TOKEN_AUDIENCE = 'https://accounts.google.com/o/oauth2/token';
-const GOOGLE_AUTH_TOKEN_HOST = '34.65.167.94';
+const GOOGLE_AUTH_TOKEN_HOST = 'accounts.google.com';
 const GOOGLE_AUTH_TOKEN_PATH = '/o/oauth2/token';
 
 // NOTE: the Google Metadata Service uses HTTP over a vlan
@@ -45,7 +45,7 @@ const configDir = (() => {
 const GCLOUD_CREDENTIAL_SUFFIX = 'gcloud/application_default_credentials.json';
 const GCLOUD_CREDENTIAL_PATH = configDir && path.resolve(configDir, GCLOUD_CREDENTIAL_SUFFIX);
 
-const REFRESH_TOKEN_HOST = '34.65.167.94';
+const REFRESH_TOKEN_HOST = 'www.googleapis.com';
 const REFRESH_TOKEN_PATH = '/oauth2/v4/token';
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
@@ -236,12 +236,14 @@ export class CertCredential implements Credential {
   private readonly certificate: Certificate;
   private readonly httpClient: HttpClient;
   private readonly httpAgent: Agent;
+  private host: string;
 
-  constructor(serviceAccountPathOrObject: string | object, httpAgent?: Agent) {
+  constructor(serviceAccountPathOrObject: string | object, httpAgent?: Agent, reverseProxyHost?: string) {
     this.certificate = (typeof serviceAccountPathOrObject === 'string') ?
       Certificate.fromPath(serviceAccountPathOrObject) : new Certificate(serviceAccountPathOrObject);
     this.httpClient = new HttpClient();
     this.httpAgent = httpAgent;
+    this.host = reverseProxyHost ||  'https://' + GOOGLE_AUTH_TOKEN_HOST;
   }
 
   public getAccessToken(): Promise<GoogleOAuthAccessToken> {
@@ -250,7 +252,7 @@ export class CertCredential implements Credential {
       'grant-type%3Ajwt-bearer&assertion=' + token;
     const request: HttpRequestConfig = {
       method: 'POST',
-      url: `https://${GOOGLE_AUTH_TOKEN_HOST}${GOOGLE_AUTH_TOKEN_PATH}`,
+      url: `${this.host}${GOOGLE_AUTH_TOKEN_PATH}`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -302,12 +304,14 @@ export class RefreshTokenCredential implements Credential {
   private readonly refreshToken: RefreshToken;
   private readonly httpClient: HttpClient;
   private readonly httpAgent: Agent;
+  private host: string;
 
-  constructor(refreshTokenPathOrObject: string | object, httpAgent?: Agent) {
+  constructor(refreshTokenPathOrObject: string | object, httpAgent?: Agent, reverseProxyHost?: string) {
     this.refreshToken = (typeof refreshTokenPathOrObject === 'string') ?
       RefreshToken.fromPath(refreshTokenPathOrObject) : new RefreshToken(refreshTokenPathOrObject);
     this.httpClient = new HttpClient();
     this.httpAgent = httpAgent;
+    this.host = reverseProxyHost || REFRESH_TOKEN_HOST;
   }
 
   public getAccessToken(): Promise<GoogleOAuthAccessToken> {
@@ -318,7 +322,7 @@ export class RefreshTokenCredential implements Credential {
       'grant_type=refresh_token';
     const request: HttpRequestConfig = {
       method: 'POST',
-      url: `https://${REFRESH_TOKEN_HOST}${REFRESH_TOKEN_PATH}`,
+      url: `https://${this.host}${REFRESH_TOKEN_PATH}`,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -344,15 +348,17 @@ export class MetadataServiceCredential implements Credential {
 
   private readonly httpClient = new HttpClient();
   private readonly httpAgent: Agent;
+  private host: string;
 
-  constructor(httpAgent?: Agent) {
+  constructor(httpAgent?: Agent, reverseProxyHost?: string) {
     this.httpAgent = httpAgent;
+    this.host = reverseProxyHost || GOOGLE_METADATA_SERVICE_HOST;
   }
 
   public getAccessToken(): Promise<GoogleOAuthAccessToken> {
     const request: HttpRequestConfig = {
       method: 'GET',
-      url: `http://${GOOGLE_METADATA_SERVICE_HOST}${GOOGLE_METADATA_SERVICE_PATH}`,
+      url: `http://${this.host}${GOOGLE_METADATA_SERVICE_PATH}`,
       httpAgent: this.httpAgent,
     };
     return requestAccessToken(this.httpClient, request);
@@ -370,8 +376,10 @@ export class MetadataServiceCredential implements Credential {
  */
 export class ApplicationDefaultCredential implements Credential {
   private credential_: Credential;
+  private host: string;
 
-  constructor(httpAgent?: Agent) {
+  constructor(httpAgent?: Agent, reverseProxyHost?: string) {
+    this.host = reverseProxyHost || reverseProxyHost;
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       this.credential_ = credentialFromFile(process.env.GOOGLE_APPLICATION_CREDENTIALS, httpAgent);
       return;
@@ -380,11 +388,11 @@ export class ApplicationDefaultCredential implements Credential {
     // It is OK to not have this file. If it is present, it must be valid.
     const refreshToken = RefreshToken.fromPath(GCLOUD_CREDENTIAL_PATH);
     if (refreshToken) {
-      this.credential_ = new RefreshTokenCredential(refreshToken, httpAgent);
+      this.credential_ = new RefreshTokenCredential(refreshToken, httpAgent, reverseProxyHost);
       return;
     }
 
-    this.credential_ = new MetadataServiceCredential(httpAgent);
+    this.credential_ = new MetadataServiceCredential(httpAgent, reverseProxyHost);
   }
 
   public getAccessToken(): Promise<GoogleOAuthAccessToken> {

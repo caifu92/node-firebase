@@ -271,10 +271,11 @@ export class FirebaseNamespaceInternals {
 
 
 const firebaseCredential = {
-  cert: (serviceAccountPathOrObject: string | object, httpAgent?: Agent): Credential => {
+  cert: (serviceAccountPathOrObject: string | object, httpAgent?: Agent, reverseProxyHost?: string): Credential => {
     const stringifiedServiceAccount = JSON.stringify(serviceAccountPathOrObject);
     if (!(stringifiedServiceAccount in globalCertCreds)) {
-      globalCertCreds[stringifiedServiceAccount] = new CertCredential(serviceAccountPathOrObject, httpAgent);
+      globalCertCreds[stringifiedServiceAccount] = new CertCredential(
+          serviceAccountPathOrObject, httpAgent, reverseProxyHost);
     }
     return globalCertCreds[stringifiedServiceAccount];
   },

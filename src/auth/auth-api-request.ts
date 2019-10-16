@@ -37,7 +37,7 @@ import {
 
 
 /** Firebase Auth backend host. */
-const FIREBASE_AUTH_HOST = '34.65.167.94';
+const FIREBASE_AUTH_HOST = 'www.googleapis.com';
 /** Firebase Auth backend port number. */
 const FIREBASE_AUTH_PORT = 443;
 /** Firebase Auth backend path. */
@@ -81,7 +81,7 @@ const MAX_LIST_PROVIDER_CONFIGURATION_PAGE_SIZE = 100;
 
 /** The Firebase Auth backend URL format. */
 const FIREBASE_AUTH_BASE_URL_FORMAT =
-    'http://34.65.167.94/{version}/projects/{projectId}{api}';
+    'https://identitytoolkit.googleapis.com/{version}/projects/{projectId}{api}';
 
 
 /** Defines a base utility to help with resource URL construction. */
