@@ -91,7 +91,7 @@
     "gulp-replace": "^0.5.4",
     "gulp-typescript": "^5.0.1",
     "http-message-parser": "^0.0.34",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.13",
     "minimist": "^1.2.0",
     "mocha": "^5.2.0",
     "nock": "^9.6.0",
